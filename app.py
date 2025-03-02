@@ -1,17 +1,27 @@
-
 import streamlit as st
+import joblib
+import numpy as np
 
-# 제목 설정
-st.title("AI 주가 예측 앱")
+# 모델 불러오기
+@st.cache_data
+def load_model():
+    return joblib.load("model.pkl")  # GitHub에 업로드한 model.pkl 파일
 
-# 간단한 설명
-st.write("이 앱은 주가 예측을 위한 AI 모델을 기반으로 작동합니다.")
+model = load_model()
 
-# 입력 필드 추가
-user_input = st.text_input("종목 코드를 입력하세요:", "")
+# Streamlit UI
+st.title("📈 주식 예측 AI")
+st.write("감성 점수를 입력하고 예측을 실행하세요.")
 
-# 버튼 추가
-if st.button("예측 시작"):
-    st.write(f"'{user_input}' 종목에 대한 예측을 진행 중입니다... 🚀")
+# 감성 점수 입력 필드 추가
+sentiment_score = st.number_input("감성 점수 입력 (1~10)", min_value=1, max_value=10, step=1)
 
-st.write("데이터 분석 및 시각화 기능은 차후 업데이트 예정입니다!")
+# 예측 실행 버튼
+if st.button("예측 실행"):
+    # 입력값을 모델이 처리할 수 있는 형태로 변환
+    input_data = np.array([[sentiment_score]])  # 2차원 배열로 변환
+    prediction = model.predict(input_data)  # 예측 실행
+    
+    # 예측 결과 출력
+    st.success(f"🔮 예측 결과: {prediction[0]:.2f}")  # 소수점 2자리까지 표시
+
